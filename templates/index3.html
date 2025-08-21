@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hive_Gen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+    <!-- jQuery and jQuery UI for Autocomplete -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+</head>
+<body class="bg-gray-100 p-6">
+	<div id="loading" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+</div>
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-6">Hive_Gen</h1>
+
+        <form id="appIdForm" class="mb-6">
+            <div class="mb-4">
+                <label for="app_id" class="block text-gray-700">Enter App name:</label>
+                <input type="text" id="app_id" name="app_id" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="button" id="proceedButton" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Proceed</button>
+        </form>
+        
+        <!-- Second Form: Number of Creatives Input -->
+        <form id="creativesForm" class="hidden" action="/" method="POST">
+            <input type="hidden" id="app_id_hidden" name="app_id"> <!-- Hidden Input for App ID -->
+            <div class="mb-4">
+                <label for="no_of_creatives" class="block text-gray-700">Number of Creatives:</label>
+                <input type="number" id="no_of_creatives" name="no_of_creatives" min="1" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Submit</button>
+        </form>
+        
+        {% if df_html %}
+        <div class="mt-6">
+            <form action="/download" method="GET" class="mb-4">
+                <button type="submit" class="px-4 py-1 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    Download CSV
+                </button>
+            </form>
+            <h2 class="text-xl font-bold mb-4">Generated Data:</h2>
+            <div class="overflow-x-auto">
+                {{ df_html|safe }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- JavaScript for Autocomplete & Button Logic -->
+    <script>
+        $(function() {
+            $("#app_id").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "/autocomplete",
+                        data: { q: request.term },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.name + " (" + item.id + ")", // Show name + ID
+                                    value: item.id // Store ID in input field
+                                };
+                            }));
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Autocomplete error:", error);
+                        }
+                    });
+                },
+                minLength: 2 // Start suggesting after typing 2 characters
+            });
+        });
+
+        // Proceed Button Logic
+        document.getElementById('proceedButton').addEventListener('click', function() {
+            let appIdValue = document.getElementById('app_id').value.trim();
+            
+            if (!appIdValue) {
+                alert("Please select a valid App ID from the suggestions!");
+                return;
+            }
+
+            document.getElementById('app_id_hidden').value = appIdValue; // Copy App ID to hidden field
+            document.getElementById('appIdForm').classList.add('hidden');
+            document.getElementById('creativesForm').classList.remove('hidden');
+        });
+    </script>
+	<script>
+    	document.getElementById('creativesForm').addEventListener('submit', function() {
+        	// Show loading animation
+        	document.getElementById('loading').classList.remove('hidden');
+
+        // Disable submit button to prevent multiple clicks
+        document.querySelector("#creativesForm button[type='submit']").disabled = true;
+    });
+	</script>
+	<script>
+    // Ensure loading animation is hidden when the page loads
+    window.onload = function() {
+        document.getElementById('loading').classList.add('hidden');
+    };
+</script>
+</body>
+</html>

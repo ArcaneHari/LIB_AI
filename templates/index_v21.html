@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIB_AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .fade-in {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-white p-8 rounded-lg shadow-xl transform hover:scale-105 transition-transform">
+        <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-6">LIB_AI</h1>
+        
+        {% if df_html %}
+        <div class="mt-6 fade-in show">
+            <form action="/download" method="GET" class="mb-4 text-center">
+                <button type="submit" 
+                        class="px-6 py-2 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition duration-300">Download CSV</button>
+            </form>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Generated Data:</h2>
+            <div class="overflow-x-auto border rounded-lg shadow-sm p-4 bg-gray-50">
+                {{ df_html|safe }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
